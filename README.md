@@ -43,35 +43,47 @@
 git clone https://github.com/yourusername/fetal-ultrasound-waveform-synthesizer.git
 cd fetal-ultrasound-waveform-synthesizer
 
+# 가상환경 생성
+python3 -m venv venv
+
+# 가상환경 활성화
+source venv/bin/activate  # macOS/Linux
+# Windows: venv\Scripts\activate
+
 # 의존성 설치
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ## 💻 사용 방법
 
+### 가상환경 활성화
+
+```bash
+# 가상환경 활성화 (필수)
+source venv/bin/activate  # macOS/Linux
+# Windows: venv\Scripts\activate
+
+# 활성화 확인: 프롬프트에 (venv) 표시됨
+```
+
 ### 단일 영상 분석
 
 ```bash
-# macOS/Linux
-python3 scripts/analyze_single.py
-
-# 특정 영상 분석
-python3 scripts/analyze_single.py path/to/video.mp4
-
-# Windows
 python scripts/analyze_single.py path/to/video.mp4
 ```
 
 ### 배치 분석
 
 ```bash
-# macOS/Linux
-python3 scripts/batch_analyze.py
-
-# Windows
 python scripts/batch_analyze.py
 
 # 결과는 waveform_analysis_results.json 파일로 저장됩니다
+```
+
+### 작업 종료
+
+```bash
+deactivate  # 가상환경 비활성화
 ```
 
 ### 출력 예시
@@ -86,22 +98,6 @@ python scripts/batch_analyze.py
   "frame_details": [...]
 }
 ```
-
-## 📊 샘플 데이터
-
-프로젝트에는 실제 태아 초음파 샘플 영상이 포함되어 있습니다:
-
-| 임신 주차 | BPM     | 파일명                              |
-| --------- | ------- | ----------------------------------- |
-| 8주       | 160     | `8w-160bpm.mp4`                     |
-| 8주       | 165     | `8w-165bpm.mp4`                     |
-| 12주      | 159-180 | `12w-159bpm.mp4` ~ `12w-180bpm.mp4` |
-| 26-28주   | 126-141 | `26w-141bpm.mp4` ~ `28w-126bpm.mp4` |
-| 34-35주   | 141-151 | `34w-151bpm.mp4` ~ `35w-141bpm.mp4` |
-
-**특수 샘플:**
-
-- `35w-141bpm_no_audio.mp4`: 오디오 트랙이 없는 순수 영상 데이터
 
 ## 🛠 기술 스택
 
@@ -125,8 +121,7 @@ fetal-ultrasound-waveform-synthesizer/
 ├── scripts/                     # 실행 스크립트
 │   ├── analyze_single.py        # 단일 영상 분석 실행
 │   └── batch_analyze.py         # 배치 분석 실행
-├── assets/
-│   └── ultrasound-samples/      # 샘플 초음파 영상 (10개)
+├── assets/                      # 테스트용 영상 폴더
 ├── .gitignore                   # Git 제외 파일
 ├── LICENSE                      # MIT 라이선스
 ├── README.md                    # 프로젝트 문서
@@ -169,10 +164,6 @@ fetal-ultrasound-waveform-synthesizer/
 ## 📧 연락처
 
 프로젝트 이슈: [GitHub Issues](https://github.com/yourusername/fetal-ultrasound-waveform-synthesizer/issues)
-
-## 🙏 감사의 말
-
-이 프로젝트는 개인 프로젝트로 전환되어 오픈소스로 공개되었습니다.
 
 ---
 
