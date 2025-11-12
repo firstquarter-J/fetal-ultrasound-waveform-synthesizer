@@ -16,6 +16,7 @@ ENV/
 .vscode/
 .idea/
 *.swp
+.serena/
 
 # OS
 .DS_Store
