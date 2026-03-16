@@ -1,170 +1,163 @@
-# 태아 초음파 파형 합성기 (Fetal Ultrasound Waveform Synthesizer)
+# 태아 초음파 파형 합성기
 
-태아 초음파 영상에서 심박 파형을 자동으로 검출하고, 심박음을 합성하는 오픈소스 프로젝트입니다.
+태아 초음파 영상에서 심박 파형이 나타나는 구간을 검출하고, 장기적으로는 그 파형에 맞는 태아 심박음을 생성하기 위한 프로젝트입니다.
 
-## 📋 프로젝트 소개
+## 현재 판단
 
-이 프로젝트는 MP4 형식의 태아 초음파 영상을 분석하여:
+현재 구현 기준으로는 샘플 영상에서의 파형 구간 검출은 1차 목표를 달성한 상태로 봅니다.
 
-1. **파형 검출**: 프레임별로 심박 파형이 존재하는 구간을 자동으로 탐지
-2. **파형 분류**: Orange, Gray, Fragmented 등 파형 타입 자동 분류
-3. **심박음 합성** (개발 예정): 검출된 파형 구간에 심박음 오디오 합성
+- 기본 검출기는 `timeseries` 기반 구간 검출기입니다.
+- 기본 출력은 "파형이 존재하는 시간 구간"이며, 프레임 단위의 정밀 라벨링 도구로 고정된 상태는 아닙니다.
+- 심박음 합성 엔진은 아직 구현 전입니다.
 
-## ✨ 주요 기능
+## 샘플셋 기준 성능
 
-### 현재 구현된 기능
+`scripts/evaluate_manual.py`와 `evaluation_results.json` 기준:
 
-- ✅ **자동 파형 검출**: 컴퓨터 비전 기반 심박 파형 영역 인식
-- ✅ **파형 타입 분류**:
-  - `orange`: 주황색 파형
-  - `gray`: 회색 파형
-  - `orange_fragmented`: 단편화된 주황색 파형
-- ✅ **프레임 단위 분석**: 각 프레임의 파형 존재 여부 및 위치 정보
-- ✅ **배치 처리**: 여러 영상을 한 번에 분석
+- 평가 대상: 샘플 영상 10개
+- 평균 recall: `0.9104`
+- 평균 precision: `0.9530`
+- 대표적인 미스 케이스: `28w-126bpm.mp4`는 수동 구간 `0s~15s` 대비 자동 검출이 `4.2s~15.5s`로 시작 경계를 늦게 잡습니다.
 
-### 개발 예정
+즉, 샘플 환경에서는 "파형이 있는 구간을 찾아내는 기능"은 충분히 유효하지만, 합성 입력으로 쓰려면 출력 계약과 경계 정밀도를 더 다듬는 단계가 남아 있습니다.
 
-- 🔲 심박음 합성 엔진
-- 🔲 실시간 처리 최적화
-- 🔲 다양한 출력 포맷 지원
+## 현재 구현된 기능
 
-## 🚀 설치 방법
+- 초음파 MP4에서 파형 구간 검출
+- 시작/종료 시간과 프레임 번호 반환
+- 샘플 영상 배치 분석 및 JSON 저장
+- 수동 구간 대비 precision/recall 평가
+- 수동 구간 문서와 자동 검출 결과 비교 리포트 생성
+- 시계열 파라미터 튜닝 스크립트 제공
+
+## 현재 구현되지 않은 기능
+
+- 태아 심박음 합성 엔진
+- 검출 결과와 오디오 합성을 연결하는 안정된 출력 스키마
+- 기본 모드에서의 신뢰 가능한 파형 타입 분류
+- 프레임 단위 정밀 라벨링 워크플로
+
+## 설치
 
 ### 요구사항
 
-- Python 3.11 이상
+- Python 3.11+
 - OpenCV
 - NumPy
 
-### 설치
+### 설정
 
 ```bash
-# 저장소 클론
-git clone https://github.com/yourusername/fetal-ultrasound-waveform-synthesizer.git
-cd fetal-ultrasound-waveform-synthesizer
-
-# 가상환경 생성
 python3 -m venv venv
-
-# 가상환경 활성화
-source venv/bin/activate  # macOS/Linux
-# Windows: venv\Scripts\activate
-
-# 의존성 설치
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 💻 사용 방법
-
-### 가상환경 활성화
-
-```bash
-# 가상환경 활성화 (필수)
-source venv/bin/activate  # macOS/Linux
-# Windows: venv\Scripts\activate
-
-# 활성화 확인: 프롬프트에 (venv) 표시됨
-```
+## 사용 방법
 
 ### 단일 영상 분석
 
 ```bash
-python scripts/analyze_single.py path/to/video.mp4
+./venv/bin/python scripts/analyze_single.py assets/ultrasound-samples/28w-126bpm.mp4
 ```
 
-### 배치 분석
+기본 출력은 검출된 구간 로그입니다.
+
+예시:
+
+```text
+[TS] 영상: assets/ultrasound-samples/28w-126bpm.mp4
+  FPS: 30.0, 총 프레임: 4792, 길이: 159.7초
+
+  [TS] 파형 감지 구간: 1개
+    구간 1: 4.20초 ~ 15.50초 (11.30초)
+```
+
+### 배치 분석 결과 저장
 
 ```bash
-python scripts/batch_analyze.py
-
-# 결과는 waveform_analysis_results.json 파일로 저장됩니다
+./venv/bin/python scripts/analyze_all_save.py
 ```
 
-### 작업 종료
+기본 결과 파일:
+
+- `waveform_batch_results.json`
+
+### 수동 구간 대비 평가
 
 ```bash
-deactivate  # 가상환경 비활성화
+./venv/bin/python scripts/evaluate_manual.py
 ```
 
-### 출력 예시
+결과 파일:
+
+- `evaluation_results.json`
+
+### 수동 구간 문서와 차이 리포트 생성
+
+```bash
+./venv/bin/python scripts/compare_manual_intervals.py
+```
+
+결과 파일:
+
+- `results/manual_waveform_intervals_comparison.md`
+- `results/manual_interval_diffs.json`
+
+### 시계열 파라미터 튜닝
+
+```bash
+./venv/bin/python scripts/tune_timeseries.py
+```
+
+## 기본 출력 형식
+
+기본 공개 API `analyze_video()`는 현재 `timeseries` 모드로 동작하며, 구간 리스트를 반환합니다.
+
+예시:
 
 ```json
-{
-  "video_path": "assets/ultrasound-samples/12w-159bpm.mp4",
-  "waveform_type": "orange",
-  "total_frames": 450,
-  "waveform_frames": 380,
-  "waveform_percentage": 84.4,
-  "frame_details": [...]
-}
+[
+  {
+    "start_time": 4.2,
+    "end_time": 15.5,
+    "type": "timeseries",
+    "start_frame": 126,
+    "end_frame": 465
+  }
+]
 ```
 
-## 🛠 기술 스택
+이 구조는 다음 단계에서 합성 엔진이 소비할 수 있는 형태로 정리될 필요가 있습니다.
 
-- **언어**: Python 3.11+
-- **영상 처리**: OpenCV (cv2)
-- **수치 연산**: NumPy
-- **파형 검출**: 컴퓨터 비전 알고리즘 (정규화, 픽셀 분석)
+## 프로젝트 구조
 
-## 📁 프로젝트 구조
-
-```
+```text
 fetal-ultrasound-waveform-synthesizer/
-├── src/                         # 소스 코드 패키지
-│   ├── __init__.py
-│   ├── detection/               # 파형 검출 모듈 (Phase 1)
-│   │   ├── __init__.py
-│   │   ├── analyzer.py          # 단일 영상 분석
-│   │   └── batch.py             # 배치 처리
-│   └── synthesis/               # 심박음 합성 모듈 (Phase 2, 개발 예정)
+├── src/
+│   ├── detection/
+│   │   └── analyzer.py
+│   └── synthesis/
 │       └── __init__.py
-├── scripts/                     # 실행 스크립트
-│   ├── analyze_single.py        # 단일 영상 분석 실행
-│   └── batch_analyze.py         # 배치 분석 실행
-├── assets/                      # 테스트용 영상 폴더
-├── .gitignore                   # Git 제외 파일
-├── LICENSE                      # MIT 라이선스
-├── README.md                    # 프로젝트 문서
-└── requirements.txt             # Python 의존성
+├── scripts/
+│   ├── analyze_all_save.py
+│   ├── analyze_single.py
+│   ├── compare_manual_intervals.py
+│   ├── evaluate_manual.py
+│   └── tune_timeseries.py
+├── manual_waveform_intervals.md
+├── evaluation_results.json
+├── README.md
+└── requirements.txt
 ```
 
-## 🔬 알고리즘 개요
+## 다음 단계
 
-1. **영상 로드**: OpenCV로 MP4 파일 읽기
-2. **프레임 추출**: 각 프레임을 개별 이미지로 분리
-3. **정규화**: 픽셀 값 정규화 및 전처리
-4. **파형 검출**:
-   - Wide rows 계산 (가로로 넓게 분포된 픽셀 영역)
-   - 색상 패턴 분석 (주황색/회색 감지)
-   - 파형 타입 분류
-5. **결과 저장**: JSON 형식으로 분석 결과 출력
+- 검출 결과를 합성 친화적인 스키마로 고정
+- 구간 시작/종료 경계 정밀도 개선
+- 파형 특성에서 심박음 파라미터로의 매핑 정의
+- `src/synthesis/`에 실제 심박음 생성 파이프라인 구현
 
-## 🗺 로드맵
+## 주의
 
-- [x] Phase 1: 파형 검출 엔진 개발
-- [ ] Phase 2: 심박음 합성 엔진 개발
-- [ ] Phase 3: CLI 도구 개발
-- [ ] Phase 4: GUI 애플리케이션
-- [ ] Phase 5: 웹 API 서비스
-
-## 🤝 기여하기
-
-이 프로젝트는 오픈소스이며, 기여를 환영합니다!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
-
-## 📧 연락처
-
-프로젝트 이슈: [GitHub Issues](https://github.com/yourusername/fetal-ultrasound-waveform-synthesizer/issues)
-
----
-
-**⚠️ 면책조항**: 이 프로젝트는 연구 및 교육 목적으로 제공됩니다. 의료 진단 용도로 사용하지 마세요.
+이 프로젝트는 연구 및 개발 목적입니다. 의료 진단 용도로 사용하면 안 됩니다.

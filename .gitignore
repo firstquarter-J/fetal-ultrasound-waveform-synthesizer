@@ -30,6 +30,7 @@ temp/
 tmp/
 *.json
 *.csv
+debug_frames/
 
 # Media files
 *.mp4
@@ -45,3 +46,6 @@ assets/ultrasound-samples
 *.h5
 *.pkl
 *.pickle
+
+# Local agent context
+AGENTS.md
