@@ -21,22 +21,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.detection.analyzer import analyze_video  # noqa: E402
+from src.common.manual_intervals import load_manual_intervals  # noqa: E402
 
-# 수동으로 표기한 파형 구간 (초 단위)
-MANUAL_INTERVALS = {
-    "8w-160bpm.mp4": [(0, 17), (20 * 60 + 30, 20 * 60 + 36)],
-    "8w-165bpm.mp4": [(14, 21)],
-    "12w-159bpm.mp4": [(30, 39)],
-    "12w-161bpm.mp4": [(39, 50)],
-    "12w-180bpm.mp4": [(38, 45)],
-    "26w-141bpm.mp4": [(2 * 60 + 3, 2 * 60 + 13)],
-    "27w-137bpm.mp4": [(1 * 60 + 57, 2 * 60 + 6), (4 * 60 + 0, 4 * 60 + 9)],
-    "28w-126bpm.mp4": [(0, 15)],
-    "34w-151bpm.mp4": [(1 * 60 + 44, 1 * 60 + 53), (2 * 60 + 4, 2 * 60 + 5)],
-    "35w-141bpm.mp4": [(1 * 60 + 28, 1 * 60 + 37)],
-}
-
-SAMPLES_DIR = Path("assets/ultrasound-samples")
+SAMPLES_DIR = PROJECT_ROOT / "assets/ultrasound-samples"
+MANUAL_MD = PROJECT_ROOT / "annotations/manual_waveform_intervals.md"
+OUTPUT_JSON = Path("results/evaluation_results.json")
+MANUAL_INTERVALS = load_manual_intervals(MANUAL_MD)
 
 
 def interval_overlap(a: Tuple[float, float], b: Tuple[float, float]) -> float:
@@ -124,8 +114,9 @@ def main():
         "avg_precision": sum(r["precision"] for r in results) / len(results),
     }
 
-    Path("evaluation_results.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    print("결과 저장: evaluation_results.json")
+    OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_JSON.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"결과 저장: {OUTPUT_JSON}")
 
 
 if __name__ == "__main__":

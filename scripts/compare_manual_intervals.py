@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-현재 timeseries 기반 검출 결과를 manual_waveform_intervals.md와 비교해
+현재 timeseries 기반 검출 결과를 annotations/manual_waveform_intervals.md와 비교해
 manual 파일과 동일한 bullet 형식으로 비교 리포트를 기록합니다.
 
 Outputs:
@@ -27,23 +27,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.detection.analyzer import analyze_video  # noqa: E402
+from src.common.manual_intervals import parse_time_to_seconds  # noqa: E402
 
 
 SAMPLES_DIR = PROJECT_ROOT / "assets/ultrasound-samples"
-MANUAL_MD = PROJECT_ROOT / "manual_waveform_intervals.md"
+MANUAL_MD = PROJECT_ROOT / "annotations/manual_waveform_intervals.md"
 OUT_DIR = PROJECT_ROOT / "results"
 OUT_MD = OUT_DIR / "manual_waveform_intervals_comparison.md"
 OUT_JSON = OUT_DIR / "manual_interval_diffs.json"
-
-
-def parse_time_to_seconds(token: str) -> float:
-    token = token.strip()
-    m = re.fullmatch(r"(?:(\d+)m)?(?:(\d+)s)?", token)
-    if not m:
-        raise ValueError(f"시간 토큰 파싱 실패: {token!r}")
-    minutes = int(m.group(1) or 0)
-    seconds = int(m.group(2) or 0)
-    return float(minutes * 60 + seconds)
 
 
 def fmt_seconds(sec: float) -> str:
@@ -55,32 +46,6 @@ def fmt_seconds(sec: float) -> str:
     if m > 0:
         return f"{m}m{s:05.2f}s"
     return f"{s:.2f}s"
-
-
-def parse_manual_md(md_text: str) -> Dict[str, List[Tuple[float, float]]]:
-    intervals: Dict[str, List[Tuple[float, float]]] = {}
-    for raw_line in md_text.splitlines():
-        line = raw_line.strip()
-        if not line.startswith("- "):
-            continue
-        line = line[2:]
-        if ":" not in line:
-            continue
-        filename, rest = line.split(":", 1)
-        filename = filename.strip()
-        # 괄호/설명 제거
-        rest = re.sub(r"\(.*?\)", "", rest)
-        # "and" / ";" 등으로 여러 구간이 나뉘더라도, "~" 패턴을 모두 추출
-        matches = re.findall(r"([0-9]+m[0-9]+s|[0-9]+s)\s*~\s*([0-9]+m[0-9]+s|[0-9]+s)", rest)
-        if not matches:
-            continue
-        out = intervals.setdefault(filename, [])
-        for a, b in matches:
-            start = parse_time_to_seconds(a)
-            end = parse_time_to_seconds(b)
-            if end > start:
-                out.append((start, end))
-    return intervals
 
 
 @dataclass(frozen=True)
@@ -194,7 +159,7 @@ def analyze_detected(video_path: Path) -> List[Tuple[float, float]]:
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="manual_waveform_intervals.md 대비 자동 검출 구간 차이 기록")
+    p = argparse.ArgumentParser(description="annotations/manual_waveform_intervals.md 대비 자동 검출 구간 차이 기록")
     p.add_argument(
         "--videos",
         nargs="*",

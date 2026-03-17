@@ -12,7 +12,7 @@
 
 ## 샘플셋 기준 성능
 
-`scripts/evaluate_manual.py`와 `evaluation_results.json` 기준:
+`scripts/evaluate_manual.py`와 `results/evaluation_results.json` 기준:
 
 - 평가 대상: 샘플 영상 10개
 - 평균 recall: `0.9104`
@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 기본 결과 파일:
 
-- `waveform_batch_results.json`
+- `results/waveform_batch_results.json`
 
 ### 수동 구간 대비 평가
 
@@ -91,7 +91,7 @@ pip install -r requirements.txt
 
 결과 파일:
 
-- `evaluation_results.json`
+- `results/evaluation_results.json`
 
 ### 수동 구간 문서와 차이 리포트 생성
 
@@ -134,6 +134,10 @@ pip install -r requirements.txt
 
 ```text
 fetal-ultrasound-waveform-synthesizer/
+├── docs/
+│   └── REFACTORING_PLAN.md
+├── annotations/
+│   └── manual_waveform_intervals.md
 ├── src/
 │   ├── detection/
 │   │   └── analyzer.py
@@ -145,8 +149,11 @@ fetal-ultrasound-waveform-synthesizer/
 │   ├── compare_manual_intervals.py
 │   ├── evaluate_manual.py
 │   └── tune_timeseries.py
-├── manual_waveform_intervals.md
-├── evaluation_results.json
+├── results/
+│   ├── evaluation_results.json
+│   ├── manual_interval_diffs.json
+│   ├── manual_waveform_intervals_comparison.md
+│   └── waveform_batch_results.json
 ├── README.md
 └── requirements.txt
 ```

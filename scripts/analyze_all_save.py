@@ -26,8 +26,8 @@ def parse_args():
     )
     parser.add_argument(
         '--output',
-        default='waveform_batch_results.json',
-        help='결과 JSON 저장 경로 (기본: waveform_batch_results.json)',
+        default='results/waveform_batch_results.json',
+        help='결과 JSON 저장 경로 (기본: results/waveform_batch_results.json)',
     )
     return parser.parse_args()
 
@@ -73,6 +73,7 @@ def main():
     }
 
     output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f"결과 저장 완료: {output_path} (총 {len(results)}개 영상)")
 
