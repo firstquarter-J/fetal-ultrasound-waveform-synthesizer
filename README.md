@@ -83,6 +83,11 @@ pip install -r requirements.txt
 
 - `results/waveform_batch_results.json`
 
+주의:
+
+- 기본 `timeseries` 경로는 현재 `moving_subsegments`를 만들지 않으므로 `moving_segment_count`, `moving_segments`는 비어 있습니다.
+- 위 필드는 기존 CV 기반 후처리와의 호환 흔적이며, 기본 공개 경로의 핵심 출력은 `segments` 리스트입니다.
+
 ### 수동 구간 대비 평가
 
 ```bash
@@ -112,7 +117,15 @@ pip install -r requirements.txt
 
 ## 기본 출력 형식
 
-기본 공개 API `analyze_video()`는 현재 `timeseries` 모드로 동작하며, 구간 리스트를 반환합니다.
+기본 공개 API는 [src/detection/api.py](/Users/firstquarter/workspace/fetal-ultrasound-waveform-synthesizer/src/detection/api.py)의 `analyze_video()`이며, 현재 `timeseries` 모드로 동작하면서 구간 리스트를 반환합니다.
+
+예시:
+
+```python
+from src.detection.api import analyze_video
+
+segments = analyze_video("assets/ultrasound-samples/28w-126bpm.mp4", verbose=False)
+```
 
 예시:
 
@@ -139,8 +152,11 @@ fetal-ultrasound-waveform-synthesizer/
 ├── annotations/
 │   └── manual_waveform_intervals.md
 ├── src/
+│   ├── contracts/
+│   │   └── waveform.py
 │   ├── detection/
-│   │   └── analyzer.py
+│   │   ├── analyzer.py
+│   │   └── api.py
 │   └── synthesis/
 │       └── __init__.py
 ├── scripts/
@@ -154,6 +170,8 @@ fetal-ultrasound-waveform-synthesizer/
 │   ├── manual_interval_diffs.json
 │   ├── manual_waveform_intervals_comparison.md
 │   └── waveform_batch_results.json
+├── tests/
+│   └── test_detection_api.py
 ├── README.md
 └── requirements.txt
 ```

@@ -14,7 +14,7 @@ import sys
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.detection.analyzer import analyze_video  # noqa: E402
+from src.detection.api import analyze_video  # noqa: E402
 
 
 def parse_args():

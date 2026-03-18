@@ -14,8 +14,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# analyzer 모듈의 analyze_video 함수 임포트
-from src.detection.analyzer import analyze_video
+# detection 공개 API 임포트
+from src.detection.api import analyze_video
 
 
 def main():
