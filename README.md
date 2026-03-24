@@ -156,7 +156,12 @@ fetal-ultrasound-waveform-synthesizer/
 │   │   └── waveform.py
 │   ├── detection/
 │   │   ├── analyzer.py
-│   │   └── api.py
+│   │   ├── api.py
+│   │   └── timeseries/
+│   │       ├── config.py
+│   │       ├── features.py
+│   │       ├── roi.py
+│   │       └── segmenter.py
 │   └── synthesis/
 │       └── __init__.py
 ├── scripts/
