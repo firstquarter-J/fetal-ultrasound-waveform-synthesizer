@@ -157,6 +157,10 @@ fetal-ultrasound-waveform-synthesizer/
 │   ├── detection/
 │   │   ├── analyzer.py
 │   │   ├── api.py
+│   │   ├── cv/
+│   │   │   ├── frame_detector.py
+│   │   │   ├── motion.py
+│   │   │   └── postprocess.py
 │   │   └── timeseries/
 │   │       ├── config.py
 │   │       ├── features.py
